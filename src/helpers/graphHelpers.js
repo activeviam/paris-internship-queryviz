@@ -35,8 +35,10 @@ const enterNode = selection => {
 
 const updateNode = selection => {
   selection
-    .attr("transform", d => `translate(${d.x},${d.yFixed})`)
+    // .attr("transform", d => `translate(${d.x},${d.yFixed})`)
     .select("circle")
+    .attr("cx", d => d.x)
+    .attr("y", d => d.yFixed)
     .style("stroke-width", d => (d.isSelected ? 3 : 1))
     .style("stroke", d => (d.isSelected ? "#2E2E2E" : "#BFBFBF"));
 };

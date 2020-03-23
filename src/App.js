@@ -98,7 +98,6 @@ class App extends Component {
               links={currentLinks}
               clickNode={this.clickNode}
               restart={() => this.setState({ restartGraph: false })}
-              changeGraph={this.changeGraph}
             />
           )}
           {router === "timeline" && <></>}

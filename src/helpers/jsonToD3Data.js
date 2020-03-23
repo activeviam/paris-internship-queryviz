@@ -1,5 +1,6 @@
 import { fillTimingInfo } from "./fillTimingInfo";
 import criticalPath from "./criticalPath";
+import addClustersToNodes from "./cluster";
 
 const runTime = retrievals =>
   // Returns the biggest elapsed time in the graph, ie the total runtime of the graph
@@ -70,6 +71,7 @@ const getNodes = (dependencies, retrievals) => {
         name: retrId.toString(),
         childrenIds: [],
         isSelected: false,
+        deepness: parseInt(fakeStartTime[0], 10),
         details: {
           startTime: realStart,
           elapsedTime: realElapsed,
@@ -145,6 +147,7 @@ const parseJson = (jsonObject, type = "default") => {
     const nodes = getNodes(dependencies, retrievals, queryId);
     const links = getLinks(dependencies, retrievals);
     criticalPath(query, links);
+    addClustersToNodes(query, nodes);
     return {
       id: queryId,
       parentId: null,

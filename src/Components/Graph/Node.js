@@ -86,7 +86,7 @@ class Node extends Component {
 
     const nodeElem = status === "leaf" ? "rect" : "circle";
     return (
-      <>
+      <React.Fragment key={this.props.key}>
         <g className="node">
           {React.createElement(nodeElem, {
             ref: this.myRef,
@@ -97,7 +97,7 @@ class Node extends Component {
         <Overlay show={isSelected} placement="auto" target={this.myRef.current}>
           {popover}
         </Overlay>
-      </>
+      </React.Fragment>
     );
   }
 }

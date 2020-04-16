@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import Overlay from "react-bootstrap/Overlay";
 import * as d3 from "d3";
+import _ from "lodash";
+
 import { nodeType, linkType } from "../../types";
 import Link from "./Link";
 import Node from "./Node";
@@ -26,6 +28,7 @@ class Graph extends Component {
       epoch: 0
     };
     this.svgRef = React.createRef();
+    this.zoom = null;
   }
 
   componentDidMount() {
@@ -97,6 +100,32 @@ class Graph extends Component {
     );
   };
 
+  autoScaleGraph = zoom => {
+    if (this.zoom !== zoom) return;
+
+    const { nodes } = this.state;
+    const xs = _(nodes).map(n => n.x);
+    const minX = xs.min();
+    const maxX = xs.max();
+    const ys = _(nodes).map(n => n.y);
+    const minY = ys.min();
+    const maxY = ys.max();
+
+    const d3Graph = d3.select(ReactDOM.findDOMNode(this));
+    const width = d3Graph.attr("width");
+    const pointWidth = maxY - minY;
+    const height = d3Graph.attr("height");
+    const pointHeight = maxX - minX;
+
+    const scale = Math.min(width / pointWidth, height / pointHeight);
+
+    debugger;
+    const transform = d3.zoomIdentity.scale(scale).translate(-minX, -minY);
+    d3Graph.select("g").call(zoom.transform, transform);
+    // d3Graph.select("g").attr("transform", transform.toString());
+    // d3Graph.call(transform);
+  };
+
   generateGraph() {
     const { query, selection } = this.props;
     const { selectedRetrievals, epoch } = this.state;
@@ -146,18 +175,23 @@ class Graph extends Component {
         .attr("height", window.innerHeight - 56);
     });
 
-    d3Graph.call(
-      d3.zoom().on("zoom", () => {
-        this.clickNode(null);
-        return d3
-          .select("svg")
-          .select("g")
-          .attr("transform", d3.event.transform);
-      })
-    );
+    const zoom = d3.zoom().on("zoom", () => {
+      this.clickNode(null);
+      return d3
+        .select("svg")
+        .select("g")
+        .attr("transform", d3.event.transform);
+    });
+    d3Graph.select("g").call(zoom);
+    this.zoom = zoom;
 
+    let scaled = false;
     force.on("tick", () => {
       d3Graph.call(updateGraph);
+      if (force.alpha() < 0.75 && !scaled) {
+        scaled = true;
+        this.autoScaleGraph(zoom);
+      }
     });
 
     this.setState({ nodes, links, epoch: epoch + 1 }, () => {
@@ -188,7 +222,10 @@ class Graph extends Component {
     return (
       <>
         <svg className="graph" ref={this.svgRef}>
-          <g key={`e${this.state.epoch}`}>
+          <g
+            key={`e${this.state.epoch}`}
+            style={{ width: "100%", height: "100%" }}
+          >
             {Links}
             {Nodes}
           </g>

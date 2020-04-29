@@ -1,3 +1,5 @@
+> The internship being over, this project is now archived and the application has been migrated to [activeviam.github.io](https://github.com/activeviam/activeviam.github.io) under _atoti-query-analyser_.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
